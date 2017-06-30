@@ -658,7 +658,7 @@ namespace System.Collections
             {
                 if (this._syncRoot == null)
                 {
-                    Interlocked.CompareExchange<object>(ref this._syncRoot, new object(), null);
+                    Interlock.CompareExchange<object>(ref _syncRoot, new object(), null);
                 }
                 return this._syncRoot;
             }

@@ -47,7 +47,7 @@ namespace System.Collections
             }
         }
 
-        bool ICollection.IsSynchronized
+        bool IsSynchronized
         {
             get
             {
@@ -55,7 +55,7 @@ namespace System.Collections
             }
         }
 
-        object ICollection.SyncRoot
+        object SyncRoot
         {
             get
             {

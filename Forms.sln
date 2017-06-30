@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Collections", "Syste
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Windows.Forms", "System.Windows.Forms\System.Windows.Forms.csproj", "{1810092D-6BDF-4377-9E37-65C1D0A29F01}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Threading", "System.Threading\System.Threading.csproj", "{DCEAB0B2-74AF-48EF-8522-E20DF6799C57}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{1810092D-6BDF-4377-9E37-65C1D0A29F01}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1810092D-6BDF-4377-9E37-65C1D0A29F01}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1810092D-6BDF-4377-9E37-65C1D0A29F01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCEAB0B2-74AF-48EF-8522-E20DF6799C57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCEAB0B2-74AF-48EF-8522-E20DF6799C57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCEAB0B2-74AF-48EF-8522-E20DF6799C57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCEAB0B2-74AF-48EF-8522-E20DF6799C57}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

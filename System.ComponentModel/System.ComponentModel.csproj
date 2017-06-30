@@ -60,6 +60,10 @@
     <Content Include="Bridge\www\demo.html" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\System.Collections\System.Collections.csproj">
+      <Project>{31E98482-9C46-44FB-9B81-3AA07CDB1DFC}</Project>
+      <Name>System.Collections</Name>
+    </ProjectReference>
     <ProjectReference Include="..\System\System.csproj">
       <Project>{ea854425-08da-4ea2-aa5b-f9a6bdb87b68}</Project>
       <Name>System</Name>

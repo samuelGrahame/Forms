@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 
 namespace System.Collections
 {
@@ -67,7 +68,7 @@ namespace System.Collections
             return new IListWrapper(list);
         }
 
-        public void Add(object value)
+        public virtual void Add(object value)
         {
             if (this._size == this._items.Length)
             {
@@ -386,7 +387,7 @@ namespace System.Collections
             return new ReadOnlyList(list);
         }
 
-        public bool Remove(object obj)
+        public virtual bool Remove(object obj)
         {
             int index = this.IndexOf(obj);
             if (index >= 0)
@@ -499,15 +500,15 @@ namespace System.Collections
 
         public virtual void Sort()
         {
-            this.Sort(0, this.Count, Comparer.Default);
+            this.Sort(0, this.Count, Comparer<object>.Default);
         }
 
-        public virtual void Sort(IComparer comparer)
+        public virtual void Sort(IComparer<object> comparer)
         {
             this.Sort(0, this.Count, comparer);
         }
 
-        public virtual void Sort(int index, int count, IComparer comparer)
+        public virtual void Sort(int index, int count, IComparer<object> comparer)
         {
             if (index < 0)
             {
@@ -524,8 +525,7 @@ namespace System.Collections
             Array.Sort(this._items, index, count, comparer);
             this._version++;
         }
-
-        [HostProtection(SecurityAction.LinkDemand, Synchronization = true)]
+        
         public static ArrayList Synchronized(ArrayList list)
         {
             if (list == null)
@@ -534,8 +534,7 @@ namespace System.Collections
             }
             return new SyncArrayList(list);
         }
-
-        [HostProtection(SecurityAction.LinkDemand, Synchronization = true)]
+        
         public static IList Synchronized(IList list)
         {
             if (list == null)
@@ -551,15 +550,14 @@ namespace System.Collections
             Array.Copy(this._items, 0, destinationArray, 0, this._size);
             return destinationArray;
         }
-
-        [SecuritySafeCritical]
+        
         public virtual Array ToArray(Type type)
         {
             if (type == null)
             {
                 throw new ArgumentNullException("type");
             }
-            Array destinationArray = Array.UnsafeCreateInstance(type, this._size);
+            Array destinationArray = Array.CreateInstance(type, this._size);
             Array.Copy(this._items, 0, destinationArray, 0, this._size);
             return destinationArray;
         }
@@ -681,9 +679,7 @@ namespace System.Collections
                 }
                 this.arrayList = arrayList;
             }
-
-            // Properties
-            [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+            
             public object[] Items
             {
                 get
@@ -692,8 +688,7 @@ namespace System.Collections
                 }
             }
         }
-
-        [Serializable]
+        
         private sealed class ArrayListEnumerator : IEnumerator, ICloneable
         {
             // Fields
@@ -703,6 +698,11 @@ namespace System.Collections
             private ArrayList list;
             private int startIndex;
             private int version;
+
+            private ArrayListEnumerator()
+            {
+
+            }
 
             // Methods
             internal ArrayListEnumerator(ArrayList list, int index, int count)
@@ -717,7 +717,15 @@ namespace System.Collections
 
             public object Clone()
             {
-                return base.MemberwiseClone();
+                // #TODO MemberwiseClone                
+                return new ArrayListEnumerator() {
+                    currentElement = this.currentElement,
+                    endIndex = this.endIndex,
+                    index = this.index,
+                    list = this.list,
+                    startIndex = this.startIndex,
+                    version = this.version
+                };
             }
 
             public bool MoveNext()
@@ -763,18 +771,21 @@ namespace System.Collections
                 }
             }
         }
-
-        [Serializable]
+        
         private sealed class ArrayListEnumeratorSimple : IEnumerator, ICloneable
         {
             // Fields
             private object currentElement;
             private static object dummyObject = new object();
-            private int index;
-            [NonSerialized]
+            private int index;            
             private bool isArrayList;
             private ArrayList list;
             private int version;
+
+            private ArrayListEnumeratorSimple()
+            {
+
+            }
 
             // Methods
             internal ArrayListEnumeratorSimple(ArrayList list)
@@ -788,7 +799,14 @@ namespace System.Collections
 
             public object Clone()
             {
-                return base.MemberwiseClone();
+                return new ArrayListEnumeratorSimple()
+                {
+                    currentElement = this.currentElement,
+                    index = this.index,
+                    isArrayList = this.isArrayList,
+                    list = this.list,
+                    version = this.version
+                };
             }
 
             public bool MoveNext()
@@ -851,8 +869,7 @@ namespace System.Collections
                 }
             }
         }
-
-        [Serializable]
+        
         private class FixedSizeArrayList : ArrayList
         {
             // Fields
@@ -865,7 +882,7 @@ namespace System.Collections
                 base._version = this._list._version;
             }
 
-            public override int Add(object obj)
+            public override void Add(object obj)
             {
                 throw new NotSupportedException(("NotSupported_FixedSizeCollection"));
             }
@@ -875,7 +892,7 @@ namespace System.Collections
                 throw new NotSupportedException(("NotSupported_FixedSizeCollection"));
             }
 
-            public override int BinarySearch(int index, int count, object value, IComparer comparer)
+            public override int BinarySearch(int index, int count, object value, IComparer<object> comparer)
             {
                 return this._list.BinarySearch(index, count, value, comparer);
             }
@@ -968,7 +985,7 @@ namespace System.Collections
                 return this._list.LastIndexOf(value, startIndex, count);
             }
 
-            public override void Remove(object value)
+            public override bool Remove(object value)
             {
                 throw new NotSupportedException(("NotSupported_FixedSizeCollection"));
             }
@@ -995,7 +1012,7 @@ namespace System.Collections
                 base._version = this._list._version;
             }
 
-            public override void Sort(int index, int count, IComparer comparer)
+            public override void Sort(int index, int count, IComparer<object> comparer)
             {
                 this._list.Sort(index, count, comparer);
                 base._version = this._list._version;
@@ -1082,8 +1099,7 @@ namespace System.Collections
                 }
             }
         }
-
-        [Serializable]
+        
         private class FixedSizeList : IList, ICollection, IEnumerable
         {
             // Fields
@@ -1095,7 +1111,7 @@ namespace System.Collections
                 this._list = l;
             }
 
-            public virtual int Add(object obj)
+            public virtual void Add(object obj)
             {
                 throw new NotSupportedException(("NotSupported_FixedSizeCollection"));
             }
@@ -1130,7 +1146,7 @@ namespace System.Collections
                 throw new NotSupportedException(("NotSupported_FixedSizeCollection"));
             }
 
-            public virtual void Remove(object value)
+            public virtual bool Remove(object value)
             {
                 throw new NotSupportedException(("NotSupported_FixedSizeCollection"));
             }
@@ -1169,7 +1185,7 @@ namespace System.Collections
             {
                 get
                 {
-                    return this._list.IsSynchronized;
+                    return true;
                 }
             }
 
@@ -1189,12 +1205,11 @@ namespace System.Collections
             {
                 get
                 {
-                    return this._list.SyncRoot;
+                    return false;
                 }
             }
         }
-
-        [Serializable]
+        
         private class IListWrapper : ArrayList
         {
             // Fields
@@ -1207,11 +1222,10 @@ namespace System.Collections
                 base._version = 0;
             }
 
-            public override int Add(object obj)
+            public override void Add(object obj)
             {
-                int num = this._list.Add(obj);
-                base._version++;
-                return num;
+                this._list.Add(obj);
+                base._version++;                
             }
 
             public override void AddRange(ICollection c)
@@ -1219,7 +1233,7 @@ namespace System.Collections
                 this.InsertRange(this.Count, c);
             }
 
-            public override int BinarySearch(int index, int count, object value, IComparer comparer)
+            public override int BinarySearch(int index, int count, object value, IComparer<object> comparer)
             {
                 if ((index < 0) || (count < 0))
                 {
@@ -1231,7 +1245,7 @@ namespace System.Collections
                 }
                 if (comparer == null)
                 {
-                    comparer = Comparer.Default;
+                    comparer = Comparer<object>.Default;
                 }
                 int num = index;
                 int num2 = (index + count) - 1;
@@ -1256,11 +1270,7 @@ namespace System.Collections
             }
 
             public override void Clear()
-            {
-                if (this._list.IsFixedSize)
-                {
-                    throw new NotSupportedException(("NotSupported_FixedSizeCollection"));
-                }
+            {                
                 this._list.Clear();
                 base._version++;
             }
@@ -1465,13 +1475,15 @@ namespace System.Collections
                 return -1;
             }
 
-            public override void Remove(object value)
+            public override bool Remove(object value)
             {
                 int index = this.IndexOf(value);
                 if (index >= 0)
                 {
                     this.RemoveAt(index);
+                    return true;
                 }
+                return false;
             }
 
             public override void RemoveAt(int index)
@@ -1543,7 +1555,7 @@ namespace System.Collections
                 }
             }
 
-            public override void Sort(int index, int count, IComparer comparer)
+            public override void Sort(int index, int count, IComparer<object> comparer)
             {
                 if ((index < 0) || (count < 0))
                 {
@@ -1569,15 +1581,14 @@ namespace System.Collections
                 this._list.CopyTo(array, 0);
                 return array;
             }
-
-            [SecuritySafeCritical]
+            
             public override Array ToArray(Type type)
             {
                 if (type == null)
                 {
                     throw new ArgumentNullException("type");
                 }
-                Array array = Array.UnsafeCreateInstance(type, this._list.Count);
+                Array array = Array.CreateInstance(type, this._list.Count);
                 this._list.CopyTo(array, 0);
                 return array;
             }
@@ -1614,7 +1625,7 @@ namespace System.Collections
             {
                 get
                 {
-                    return this._list.IsFixedSize;
+                    return false;
                 }
             }
 
@@ -1630,7 +1641,7 @@ namespace System.Collections
             {
                 get
                 {
-                    return this._list.IsSynchronized;
+                    return true;
                 }
             }
 
@@ -1651,12 +1662,10 @@ namespace System.Collections
             {
                 get
                 {
-                    return this._list.SyncRoot;
+                    return false;
                 }
             }
-
-            // Nested Types
-            [Serializable]
+            
             private sealed class IListWrapperEnumWrapper : IEnumerator, ICloneable
             {
                 // Fields
@@ -1743,8 +1752,7 @@ namespace System.Collections
                 }
             }
         }
-
-        [Serializable]
+        
         private class Range : ArrayList
         {
             // Fields
@@ -1763,14 +1771,13 @@ namespace System.Collections
                 base._version = list._version;
             }
 
-            public override int Add(object value)
+            public override void Add(object value)
             {
                 this.InternalUpdateRange();
                 this._baseList.Insert(this._baseIndex + this._baseSize, value);
-                this.InternalUpdateVersion();
-                int num = this._baseSize;
-                this._baseSize = num + 1;
-                return num;
+                this.InternalUpdateVersion(); 
+                
+                this._baseSize = this._baseList.Count;                
             }
 
             public override void AddRange(ICollection c)
@@ -1789,7 +1796,7 @@ namespace System.Collections
                 }
             }
 
-            public override int BinarySearch(int index, int count, object value, IComparer comparer)
+            public override int BinarySearch(int index, int count, object value, IComparer<object> comparer)
             {
                 if ((index < 0) || (count < 0))
                 {
@@ -2123,7 +2130,7 @@ namespace System.Collections
                 }
             }
 
-            public override void Sort(int index, int count, IComparer comparer)
+            public override void Sort(int index, int count, IComparer<object> comparer)
             {
                 if ((index < 0) || (count < 0))
                 {
@@ -2145,8 +2152,7 @@ namespace System.Collections
                 Array.Copy(this._baseList._items, this._baseIndex, destinationArray, 0, this._baseSize);
                 return destinationArray;
             }
-
-            [SecuritySafeCritical]
+            
             public override Array ToArray(Type type)
             {
                 if (type == null)
@@ -2154,7 +2160,7 @@ namespace System.Collections
                     throw new ArgumentNullException("type");
                 }
                 this.InternalUpdateRange();
-                Array array = Array.UnsafeCreateInstance(type, this._baseSize);
+                Array array = Array.CreateInstance(type, this._baseSize);
                 this._baseList.CopyTo(this._baseIndex, array, 0, this._baseSize);
                 return array;
             }
@@ -2244,8 +2250,7 @@ namespace System.Collections
                 }
             }
         }
-
-        [Serializable]
+        
         private class ReadOnlyArrayList : ArrayList
         {
             // Fields
@@ -2257,7 +2262,7 @@ namespace System.Collections
                 this._list = l;
             }
 
-            public override int Add(object obj)
+            public override void Add(object obj)
             {
                 throw new NotSupportedException(("NotSupported_ReadOnlyCollection"));
             }
@@ -2267,7 +2272,7 @@ namespace System.Collections
                 throw new NotSupportedException(("NotSupported_ReadOnlyCollection"));
             }
 
-            public override int BinarySearch(int index, int count, object value, IComparer comparer)
+            public override int BinarySearch(int index, int count, object value, IComparer<object> comparer)
             {
                 return this._list.BinarySearch(index, count, value, comparer);
             }
@@ -2360,7 +2365,7 @@ namespace System.Collections
                 return this._list.LastIndexOf(value, startIndex, count);
             }
 
-            public override void Remove(object value)
+            public override bool Remove(object value)
             {
                 throw new NotSupportedException(("NotSupported_ReadOnlyCollection"));
             }
@@ -2385,7 +2390,7 @@ namespace System.Collections
                 throw new NotSupportedException(("NotSupported_ReadOnlyCollection"));
             }
 
-            public override void Sort(int index, int count, IComparer comparer)
+            public override void Sort(int index, int count, IComparer<object> comparer)
             {
                 throw new NotSupportedException(("NotSupported_ReadOnlyCollection"));
             }
@@ -2470,8 +2475,7 @@ namespace System.Collections
                 }
             }
         }
-
-        [Serializable]
+        
         private class ReadOnlyList : IList, ICollection, IEnumerable
         {
             // Fields
@@ -2483,7 +2487,7 @@ namespace System.Collections
                 this._list = l;
             }
 
-            public virtual int Add(object obj)
+            public virtual void Add(object obj)
             {
                 throw new NotSupportedException(("NotSupported_ReadOnlyCollection"));
             }
@@ -2518,7 +2522,7 @@ namespace System.Collections
                 throw new NotSupportedException(("NotSupported_ReadOnlyCollection"));
             }
 
-            public virtual void Remove(object value)
+            public virtual bool Remove(object value)
             {
                 throw new NotSupportedException(("NotSupported_ReadOnlyCollection"));
             }
@@ -2557,7 +2561,7 @@ namespace System.Collections
             {
                 get
                 {
-                    return this._list.IsSynchronized;
+                    return true;
                 }
             }
 
@@ -2577,12 +2581,11 @@ namespace System.Collections
             {
                 get
                 {
-                    return this._list.SyncRoot;
+                    return false;
                 }
             }
         }
-
-        [Serializable]
+        
         private class SyncArrayList : ArrayList
         {
             // Fields
@@ -2596,12 +2599,12 @@ namespace System.Collections
                 this._root = list.SyncRoot;
             }
 
-            public override int Add(object value)
+            public override void Add(object value)
             {
                 object obj2 = this._root;
                 lock (obj2)
                 {
-                    return this._list.Add(value);
+                    this._list.Add(value);
                 }
             }
 
@@ -2623,7 +2626,7 @@ namespace System.Collections
                 }
             }
 
-            public override int BinarySearch(object value, IComparer comparer)
+            public override int BinarySearch(object value, IComparer<object> comparer)
             {
                 object obj2 = this._root;
                 lock (obj2)
@@ -2632,7 +2635,7 @@ namespace System.Collections
                 }
             }
 
-            public override int BinarySearch(int index, int count, object value, IComparer comparer)
+            public override int BinarySearch(int index, int count, object value, IComparer<object> comparer)
             {
                 object obj2 = this._root;
                 lock (obj2)
@@ -2794,12 +2797,12 @@ namespace System.Collections
                 }
             }
 
-            public override void Remove(object value)
+            public override bool Remove(object value)
             {
                 object obj2 = this._root;
                 lock (obj2)
                 {
-                    this._list.Remove(value);
+                    return this._list.Remove(value);
                 }
             }
 
@@ -2848,7 +2851,7 @@ namespace System.Collections
                 }
             }
 
-            public override void Sort(IComparer comparer)
+            public override void Sort(IComparer<object> comparer)
             {
                 object obj2 = this._root;
                 lock (obj2)
@@ -2857,7 +2860,7 @@ namespace System.Collections
                 }
             }
 
-            public override void Sort(int index, int count, IComparer comparer)
+            public override void Sort(int index, int count, IComparer<object> comparer)
             {
                 object obj2 = this._root;
                 lock (obj2)
@@ -2978,8 +2981,7 @@ namespace System.Collections
                 }
             }
         }
-
-        [Serializable]
+        
         private class SyncIList : IList, ICollection, IEnumerable
         {
             // Fields
@@ -2990,15 +2992,15 @@ namespace System.Collections
             internal SyncIList(IList list)
             {
                 this._list = list;
-                this._root = list.SyncRoot;
+                this._root = false;
             }
 
-            public virtual int Add(object value)
+            public virtual void Add(object value)
             {
                 object obj2 = this._root;
                 lock (obj2)
                 {
-                    return this._list.Add(value);
+                    this._list.Add(value);
                 }
             }
 
@@ -3056,12 +3058,12 @@ namespace System.Collections
                 }
             }
 
-            public virtual void Remove(object value)
+            public virtual bool Remove(object value)
             {
                 object obj2 = this._root;
                 lock (obj2)
                 {
-                    this._list.Remove(value);
+                    return this._list.Remove(value);
                 }
             }
 
@@ -3091,7 +3093,7 @@ namespace System.Collections
             {
                 get
                 {
-                    return this._list.IsFixedSize;
+                    return false;
                 }
             }
 

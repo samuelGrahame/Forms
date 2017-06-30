@@ -8,12 +8,22 @@ namespace System.ComponentModel
 {
     public class Component : MarshalByRefObject, IComponent, IDisposable
     {
+        // Fill out props #TODO
+
         private static readonly object EventDisposed;
         private EventHandlerList events;
+        private ISite site;
+
+        public event EventHandler Disposed;
+
+        static Component()
+        {
+            EventDisposed = new object();
+        }
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            
         }
 
         internal bool CanRaiseEventsInternal

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Forms
+namespace System.Windows.Forms
 {
-    public class Class1
+    public class Form
     {
 
     }

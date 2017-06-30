@@ -6,9 +6,7 @@ using System.Threading.Tasks;
 
 namespace System.Windows.Forms
 {
-    public class Form : ContainerControl
-    {                
-        
-
+    public interface IWin32Window
+    {
     }
 }

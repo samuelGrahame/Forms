@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace System.Windows.Forms
+namespace System.ComponentModel
 {
-    public class Form : ContainerControl
-    {                
-        
+    public interface IComponent : IDisposable
+    {
 
     }
 }

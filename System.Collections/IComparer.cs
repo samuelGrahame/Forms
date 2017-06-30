@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace System.Windows.Forms
+namespace System.Collections
 {
-    public class Form : ContainerControl
-    {                
-        
-
+    public interface IComparer
+    {
+        int Compare(object x, object y);
     }
 }
